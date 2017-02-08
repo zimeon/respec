@@ -136,7 +136,7 @@ function bibref(conf) {
   }
   for (var k in aliases) {
     if (aliases[k].length > 1) {
-      let msg = `[${k}] is referenced in ${aliases[k].length} ways ({$aliases[k].join(", ")}).`;
+      let msg = `[${k}] is referenced in ${aliases[k].length} ways (${aliases[k].join(", ")}).`;
       msg += "This causes duplicate entries in the reference section.";
       pub("warn", msg);
     }

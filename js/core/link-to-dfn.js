@@ -5,6 +5,7 @@ define(
   function(pubsubhub, dataCite) {
     return {
       run: function(conf, doc, cb) {
+        debugger;
         doc.normalize();
         var titles = {};
         Object.keys(conf.definitionMap).forEach(function(title) {
@@ -77,6 +78,9 @@ define(
           });
           if (!foundDfn) {
             // ignore WebIDL
+            if($ant.parents("span.idlCtor").length){
+              return;
+            }
             if (!$ant.parents(".idl:not(.extAttr), dl.methods, dl.attributes, dl.constants, dl.constructors, dl.fields, dl.dictionary-members, span.idlMemberType, span.idlTypedefType, div.idlImplementsDesc").length) {
               var link_for = linkTargets[0].for_;
               var title = linkTargets[0].title;

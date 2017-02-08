@@ -28,6 +28,13 @@ describe("Core - Contiguous WebIDL", function() {
     done();
   });
 
+  it("links to standard extended attributes on interface", done => {
+    //[Constructor, SecureContext, CEReactions, Exposed=(Window,Worker)]
+    const [ctor, secureContext, ceReactions, exposed] = Array
+      .from(doc.querySelectorAll("#link-to-webidl-spec > .idl a"));
+    debugger;
+  });
+
   it("links simple method names and types", done => {
     const section = doc.querySelector("#sec-parenthesis-method");
     [

@@ -57,6 +57,17 @@
         CUSTOM PARAGRAPH
       </p>
     </section>
+    <section id="link-to-webidl-spec">
+      <pre class="idl">
+      [Constructor, SecureContext, CEReactions, Exposed=(Window,Worker)]
+      interface LinkToWebIDLSpec {
+        [PutForwards=full] readonly attribute Name name;
+        void setColorClamped([Clamp] octet red, [Clamp] octet green, [Clamp] octet blue);
+        void setColorEnforcedRange([EnforceRange] octet red, [EnforceRange] octet green, [EnforceRange] octet blue);
+      };
+      </pre>
+    </section>
+    </section>
     <section id="sec-parenthesis-method" data-dfn-for="ParenthesisTest" data-link-for="ParenthesisTest">
       <pre class="idl">
       interface ParenthesisTest {

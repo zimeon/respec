@@ -15,6 +15,33 @@ define(
     "core/templates/webidl-contiguous/compiled",
   ],
   function(pubsubhub, webidl2, hb, css, tmpls) {
+    const standardTypes = new Map([
+      ["any", "WebIDL-LS#idl-any"],
+      ["boolean", "WebIDL-LS#idl-boolean"],
+      ["Buffer", "WebIDL-LS#idl-Buffer"],
+      ["byte", "WebIDL-LS#idl-byte"],
+      ["ByteString", "WebIDL-LS#idl-ByteString"],
+      ["Callback", "WebIDL-LS#idl-Callback"],
+      ["DOMException", "WebIDL-LS#idl-DOMException"],
+      ["DOMString", "WebIDL-LS#idl-DOMString"],
+      ["double", "WebIDL-LS#idl-double"],
+      ["Error", "WebIDL-LS#idl-Error"],
+      ["float", "WebIDL-LS#idl-float"],
+      ["long long", "WebIDL-LS#idl-long-long"],
+      ["long", "WebIDL-LS#idl-long"],
+      ["object", "WebIDL-LS#idl-object"],
+      ["octet", "WebIDL-LS#idl-octet"],
+      ["Promise", "WebIDL-LS#idl-promise"],
+      ["record", "WebIDL-LS#idl-record"],
+      ["sequence", "WebIDL-LS#idl-sequence"],
+      ["short", "WebIDL-LS#idl-short"],
+      ["unrestricted double", "WebIDL-LS#idl-unrestricted-double"],
+      ["unrestricted float", "WebIDL-LS#idl-unrestricted-float"],
+      ["unsigned long long", "WebIDL-LS#idl-unsigned-long-long"],
+      ["unsigned long", "WebIDL-LS#idl-unsigned-long"],
+      ["unsigned short", "WebIDL-LS#idl-unsigned-short"],
+      ["USVString", "WebIDL-LS#idl-USVString"],
+    ]);
 
     var idlAttributeTmpl = tmpls["attribute.html"];
     var idlCallbackTmpl = tmpls["callback.html"];
@@ -39,17 +66,17 @@ define(
     // TODO: make these linkable somehow.
     // https://github.com/w3c/respec/issues/999
     // https://github.com/w3c/respec/issues/982
-    var unlinkable = new Set(["maplike", "setlike", "stringifier"])
+    var unlinkable = new Set(["maplike", "setlike", "stringifier"]);
 
     function registerHelpers() {
       hb.registerHelper("extAttr", function(obj, indent) {
-        return extAttr(obj.extAttrs, indent, /*singleLine=*/ false);
+        return extAttr(obj.extAttrs, indent, /*singleLine=*/ false, obj);
       });
       hb.registerHelper("extAttrInline", function(obj) {
-        return extAttr(obj.extAttrs, 0, /*singleLine=*/ true);
+        return extAttr(obj.extAttrs, 0, /*singleLine=*/ true, obj);
       });
       hb.registerHelper("typeExtAttrs", function(obj) {
-        return extAttr(obj.typeExtAttrs, 0, /*singleLine=*/ true);
+        return extAttr(obj.typeExtAttrs, 0, /*singleLine=*/ true, obj);
       });
       hb.registerHelper("extAttrClassName", function() {
         var extAttr = this;
@@ -265,7 +292,7 @@ define(
       ["Unscopable", "WebIDL-LS#Unscopable"],
     ]);
 
-    function extAttr(extAttrs, indent, singleLine) {
+    function extAttr(extAttrs, indent, singleLine, owner) {
       if (extAttrs.length === 0) {
         // If there are no extended attributes, omit the [] entirely.
         return "";
@@ -276,9 +303,8 @@ define(
         sep: singleLine ? ", " : ",\n " + idn(indent),
         end: singleLine ? " " : "\n",
       };
-      const safeString = new hb.SafeString(idlExtAttributeTmpl(opt));
       const tmpParser = document.createElement("div");
-      tmpParser.innerHTML = safeString;
+      tmpParser.innerHTML = new hb.SafeString(idlExtAttributeTmpl(opt));
       Array
         .from(
           tmpParser.querySelectorAll(".extAttrName")
@@ -288,40 +314,25 @@ define(
         })
         .forEach(function(elem) {
           const a = elem.ownerDocument.createElement("a");
-          a.dataset.cite = extenedAttributesLinks.get(elem.textContent);
+          if (elem.textContent === "Constructor") {
+            var unqualifiedName = owner.name + "." + owner.name;
+            var qualifiedName = owner.name + "." + owner.name + "()";
+            var args = Array
+              .from(elem.parentElement.querySelectorAll(".idlParamName"))
+              .map(function(elem) {
+                return elem.textContent;
+              })
+              .join(", ");
+            var fullyQualifiedName = parent + "." + name + "(" + args + ")";
+            a.dataset.lt = [unqualifiedName, qualifiedName, fullyQualifiedName].join("|");
+          } else {
+            a.dataset.cite = extenedAttributesLinks.get(elem.textContent);
+          }
           a.textContent = elem.textContent;
           elem.replaceChild(a, elem.firstChild);
-        })
+        });
       return new hb.SafeString(tmpParser.innerHTML);
     }
-
-    const standardTypes = new Map([
-      ["any", "WebIDL-LS#idl-any"],
-      ["boolean", "WebIDL-LS#idl-boolean"],
-      ["Buffer", "WebIDL-LS#idl-Buffer"],
-      ["byte", "WebIDL-LS#idl-byte"],
-      ["ByteString", "WebIDL-LS#idl-ByteString"],
-      ["Callback", "WebIDL-LS#idl-Callback"],
-      ["DOMException", "WebIDL-LS#idl-DOMException"],
-      ["DOMString", "WebIDL-LS#idl-DOMString"],
-      ["double", "WebIDL-LS#idl-double"],
-      ["Error", "WebIDL-LS#idl-Error"],
-      ["float", "WebIDL-LS#idl-float"],
-      ["long long", "WebIDL-LS#idl-long-long"],
-      ["long", "WebIDL-LS#idl-long"],
-      ["object", "WebIDL-LS#idl-object"],
-      ["octet", "WebIDL-LS#idl-octet"],
-      ["Promise", "WebIDL-LS#idl-promise"],
-      ["record", "WebIDL-LS#idl-record"],
-      ["sequence", "WebIDL-LS#idl-sequence"],
-      ["short", "WebIDL-LS#idl-short"],
-      ["unrestricted double", "WebIDL-LS#idl-unrestricted-double"],
-      ["unrestricted float", "WebIDL-LS#idl-unrestricted-float"],
-      ["unsigned long long", "WebIDL-LS#idl-unsigned-long-long"],
-      ["unsigned long", "WebIDL-LS#idl-unsigned-long"],
-      ["unsigned short", "WebIDL-LS#idl-unsigned-short"],
-      ["USVString", "WebIDL-LS#idl-USVString"],
-    ]);
 
     const idlKeywords = new Set([
       "any",
@@ -401,7 +412,7 @@ define(
       "unrestricted",
     ]);
     const attributeNameKeyword = new Set(["required"]);
-    var operationNames = {};
+    var operations = new Map();
     var idlPartials = {};
 
     function escapeArgumentName(argumentName) {
@@ -486,10 +497,7 @@ define(
           var members = obj.members.filter(function(member) {
             return !typeIsWhitespace(member.type);
           });
-          obj.members.forEach(function(it) {
-            if (typeIsWhitespace(it.type)) {
-              return;
-            }
+          members.forEach(function(it) {
             var qualifiers = "";
             if (it.required) qualifiers += "required ";
             if (maxQualifiers < qualifiers.length) maxQualifiers = qualifiers.length;
@@ -497,7 +505,7 @@ define(
             var typeLen = idlType2Text(it.idlType).length;
             if (maxType < typeLen) maxType = typeLen;
           });
-          var children = obj.members
+          var writtenDict = obj.members
             .map(function(it) {
               switch (it.type) {
                 case "field":
@@ -515,7 +523,7 @@ define(
               }
             })
             .join("");
-          return idlDictionaryTmpl({ obj: obj, indent: indent, children: children, partial: obj.partial ? "partial " : "" });
+          return idlDictionaryTmpl({ obj: obj, indent: indent, children: writtenDict, partial: obj.partial ? "partial " : "" });
         case "callback":
           var paramObjs = obj.arguments
             .filter(function(it) {
@@ -543,7 +551,7 @@ define(
           }
           return ret;
         case "enum":
-          var children = "";
+          var result = "";
           for (var i = 0; i < obj.values.length; i++) {
             var item = obj.values[i];
             switch (item.type) {
@@ -557,7 +565,7 @@ define(
                     break;
                   }
                 }
-                children += idlEnumItemTmpl({
+                result += idlEnumItemTmpl({
                   lname: item.toString() ? item.toString().toLowerCase() : "the-empty-string",
                   name: item.toString(),
                   parentID: obj.name.toLowerCase(),
@@ -566,13 +574,13 @@ define(
                 });
                 break;
               case "line-comment":
-                children += writeLineComment(item, indent + 1);
+                result += writeLineComment(item, indent + 1);
                 break;
               case "multiline-comment":
-                children += writeMultiLineComment(item, indent + 1);
+                result += writeMultiLineComment(item, indent + 1);
                 break;
               case "ws":
-                children += writeBlankLines(item);
+                result += writeBlankLines(item);
                 break;
               case ",":
               case "ws-pea":
@@ -581,7 +589,7 @@ define(
                 throw new Error("Unexpected type in exception: " + item.type);
             }
           }
-          return idlEnumTmpl({ obj: obj, indent: indent, children: children });
+          return idlEnumTmpl({ obj: obj, indent: indent, children: result });
         default:
           pubsubhub.pub("error", "Unexpected object type " + obj.type + " in " + JSON.stringify(obj));
           return "";
@@ -827,8 +835,32 @@ define(
             linkDefinitions(defn.members, definitionMap, defn.name, idlElem);
             name = defn.name;
             defn.idlId = "idl-def-" + name.toLowerCase() + partialIdx;
-            break;
+            // Link constructors
+            const constructors = defn.extAttrs
+              .filter(function(ctor) {
+                return ctor.name === "Constructor";
+              })
+              .map(function(ctor) {
+                return Object.assign({
+                  "isCtor": true,
+                  "type": "operation",
+                  "getter": false,
+                  "setter": false,
+                  "creator": false,
+                  "deleter": false,
+                  "legacycaller": false,
+                  "static": false,
+                  "stringifier": false,
+                  "idlType": "",
+                  "name": false,
+                  "extAttrs": false,
+                }, ctor, { type: "operation", name: name, arguments: ctor.arguments || [] });
+              });
+            if (constructors.length) {
+              linkDefinitions(constructors, definitionMap, defn.name, idlElem);
+            }
 
+            break;
           case "enum":
             name = defn.name;
 
@@ -862,19 +894,33 @@ define(
           case "operation":
             if (defn.name) {
               name = defn.name;
-              var qualifiedName = parent + "." + name;
-              var fullyQualifiedName = parent + "." + name + "()";
-              if (!operationNames[fullyQualifiedName]) {
-                operationNames[fullyQualifiedName] = [];
-              }
-              if (!operationNames[qualifiedName]) {
-                operationNames[qualifiedName] = [];
-              } else {
-                defn.overload = operationNames[qualifiedName].length;
-                name = defn.name + "!overload-" + defn.overload;
-              }
-              operationNames[fullyQualifiedName].push(defn);
-              operationNames[qualifiedName].push(defn);
+              // method signature composed of the arguments
+              var signature = defn.arguments
+                .filter(function(arg) {
+                  return !typeIsWhitespace(arg);
+                })
+                .map(function(arg) {
+                  return arg.variadic ? "..." + arg.name : arg.name;
+                }).join(", ");
+              var operationName = name + "()"; // foo()
+              var operationSignature = name + "(" + signature + ")"; // foo(arg, ...theRest)
+              var methodUnqualified = parent + "." + name; // Foo.bar
+              var methodNoSig = parent + "." + operationName; // Foo.bar()
+              var methodSignature = parent + "." + operationSignature; // Foo.bar(arg, ...theRest)
+              var allSignatures = [operationName, operationSignature, methodUnqualified, methodNoSig, methodSignature];
+              var id = "idl-def-" + methodSignature.replace(" ", "-").toLowerCase();
+              debugger;
+              allSignatures
+                .map(function(sig) {
+                  return sig.toLowerCase();
+                })
+                .reduce(function(operations, sig) {
+                  if (!operations.has(sig)) {
+                    operations.set(sig, new WeakSet());
+                  }
+                  operations.get(sig).add(defn);
+                  return operations;
+                }, operations);
             } else if (defn.getter || defn.setter || defn.deleter ||
               defn.legacycaller || defn.stringifier ||
               defn.serializer) {
@@ -960,7 +1006,7 @@ define(
             }
             definitionMap[name].push(dfn);
             return dfn;
-          };
+          }
           // no method alias, so let's find the dfn and add it
           const dfn = findDfn(parent, name, definitionMap, null, idlElem);
           if (!dfn) {
@@ -974,8 +1020,8 @@ define(
         case "enum":
           if (name === "") {
             name = "the-empty-string";
-            break;
           }
+          break;
         default:
           name = name.toLowerCase();
       }
