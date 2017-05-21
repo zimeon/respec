@@ -25,10 +25,11 @@ function show() {
     .entries(window.respecConfig.definitionMap)
     .sort(([a], [b]) => a.localeCompare(b))
     .map(([key, $dfn]) => {
-      const dfn = $dfn[0];
+      const [dfn] = $dfn[0];
+      const frag =  dfn.id ? "#" + dfn.id : "";
       return window.hyperHTML.wire()`
         <li>
-          <a href="${"#" + dfn.id }">
+          <a href="${frag}">
             ${key}
           </a>
         </li>
