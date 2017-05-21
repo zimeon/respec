@@ -367,16 +367,16 @@ export function run(conf, doc, cb) {
   conf.isW3CSoftAndDocLicense = conf.license === "w3c-software-doc";
   if (
     conf.specStatus === "webspec" &&
-    !$.inArray(conf.license, ["cc0", "w3c-software"])
+    !["cc0", "w3c-software"].includes(conf.license)
   )
     pub("error", "You cannot use that license with WebSpecs.");
   if (
     conf.specStatus !== "webspec" &&
-    !$.inArray(conf.license, ["cc-by", "w3c"])
+    !["cc-by", "w3c"].includes(conf.license)
   )
     pub("error", "You cannot use that license with that type of document.");
   conf.licenseInfo = licenses[conf.license];
-  conf.isCGBG = $.inArray(conf.specStatus, cgbg) >= 0;
+  conf.isCGBG = cgbg.includes(conf.specStatus) >= 0;
   conf.isCGFinal = conf.isCGBG && /G-FINAL$/.test(conf.specStatus);
   conf.isBasic = conf.specStatus === "base";
   conf.isRegular = !conf.isCGBG && !conf.isBasic;
@@ -394,14 +394,14 @@ export function run(conf, doc, cb) {
   }
   conf.publishYear = conf.publishDate.getFullYear();
   conf.publishHumanDate = humanDate(conf.publishDate);
-  conf.isNoTrack = $.inArray(conf.specStatus, noTrackStatus) >= 0;
+  conf.isNoTrack = noTrackStatus.includes(conf.specStatus) >= 0;
   conf.isRecTrack = conf.noRecTrack
     ? false
-    : $.inArray(conf.specStatus, recTrackStatus) >= 0;
+    : recTrackStatus.includes(conf.specStatus) >= 0;
   conf.isMemberSubmission = conf.specStatus === "Member-SUBM";
   conf.isTeamSubmission = conf.specStatus === "Team-SUBM";
   conf.isSubmission = conf.isMemberSubmission || conf.isTeamSubmission;
-  conf.anOrA = $.inArray(conf.specStatus, precededByAn) >= 0 ? "an" : "a";
+  conf.anOrA = precededByAn.includes(conf.specStatus) >= 0 ? "an" : "a";
   conf.isTagFinding =
     conf.specStatus === "finding" || conf.specStatus === "draft-finding";
   if (!conf.edDraftURI) {
