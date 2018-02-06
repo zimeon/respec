@@ -42,9 +42,9 @@ describe("W3C — Conformance", function() {
         </section>`,
     };
     const doc = await makeRSDoc(ops);
-    var $c = $("#conformance", doc);
-    var $d = $(".rfc2119", $c);
-    expect($d.length).toEqual(3);
+    var c = doc.getElementById("conformance");
+    var d = c.getElementsByClassName("rfc2119");
+    expect(d.length).toEqual(3);
   });
 
   it("omits the 2119 reference when there are no terms", async () => {
@@ -60,8 +60,8 @@ describe("W3C — Conformance", function() {
         </section>`,
     };
     const doc = await makeRSDoc(ops);
-    var $c = $("#conformance", doc);
-    var $d = $(".rfc2119", $c);
-    expect($d.length).toEqual(0);
+    var c = doc.getElementById("conformance");
+    var d = c.getElementsByClassName("rfc2119");
+    expect(d.length).toEqual(0);
   });
 });
