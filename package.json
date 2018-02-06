@@ -87,6 +87,7 @@
     "marked": "^0.3.12",
     "nightmare": "^2.10.0",
     "prompt": "^1.0.0",
+    "sizzle": "^2.3.3",
     "snyk": "^1.69.6"
   },
   "snyk": true
