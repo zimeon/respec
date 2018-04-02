@@ -7,56 +7,54 @@
 import l10n from "core/l10n";
 import css from "deps/text!deps/balloon.css";
 import { pub } from "core/pubsubhub";
+import "deps/hyperhtml";
 
 export const name = "core/github";
 
 function getSelectionCoordinates() {
-  let doc = window.document;
-  let selection = doc.selection, range, rects, rect;
-  let x = 0, y = 0;
-  if (selection) {
-    if (selection.type !== "Control") {
-      range = selection.createRange();
-      range.collapse(false);
-      x = range.boundingLeft;
-      y = range.boundingTop;
+  debugger;
+  let x = 0;
+  let y = 0;
+  const selection = document.getSelection();
+  if (selection && selection.type !== "Control") {
+    const range = selection.createRange();
+    range.collapse(false);
+    x = range.boundingLeft;
+    y = range.boundingTop;
+  } else if (selection.rangeCount) {
+    const [range] = selection.getRangeAt(0).cloneRange();
+    range.collapse(false);
+    const [rect] = range.getClientRects();
+    if(rect) {
+      x = rect.left;
+      y = rect.top;
     }
-  } else if (window.getSelection) {
-    selection = window.getSelection();
-    if (selection.rangeCount) {
-      range = selection.getRangeAt(0).cloneRange();
-      if (range.getClientRects) {
-        range.collapse(false);
-        rects = range.getClientRects();
-        if (rects.length > 0) {
-          rect = rects[0];
-        }
-        x = rect.left;
-        y = rect.top;
-      }
-      // Fall back to inserting a temporary element
-      if (x === 0 && y === 0) {
-        const span = doc.createElement("span");
-        if (span.getClientRects) {
-          // Ensure span has dimensions and position by
-          // adding a zero-width space character
-          span.appendChild( doc.createTextNode("\u200b") );
-          range.insertNode(span);
-          rect = span.getClientRects()[0];
-          x = rect.left;
-          y = rect.top;
-          const spanParent = span.parentNode;
-          spanParent.removeChild(span);
-
-          // Glue any broken text nodes back together
-          spanParent.normalize();
-        }
-      }
+    // Fall back to inserting a temporary element
+    if (x === 0 && y === 0) {
+      const span = document.createElement("span");
+      // Ensure span has dimensions and position by
+      // adding a zero-width space character
+      span.appendChild( document.createTextNode("\u200b") );
+      range.insertNode(span);
+      const [rect] = span.getClientRects();
+      x = rect.left;
+      y = rect.top;
+      const spanParent = span.parentNode;
+      span.remove();
+      // Glue any broken text nodes back together
+      spanParent.normalize();
     }
   }
-  return { x: x, y: y };
+  return { x, y };
 }
 
+document.onselectstart = ev => {
+  console.log("onselectstart", ev)
+}
+
+document.onselectionchange = ev => {
+  console.log("onselectionchange", ev)
+}
 
 function enableFileIssuesOnSelect(issueBase){
   const { body, head } = document;
@@ -78,7 +76,9 @@ function enableFileIssuesOnSelect(issueBase){
   });
   body.appendChild(fileIssueLink);
 
-  body.addEventListener("mouseup", () => {
+
+  body.addEventListener("selectionchange", () => {
+  
     const textSelected = window.getSelection().toString();
     const newIssueURL = new URL('./new',issueBase);
     const { searchParams } = newIssueURL;

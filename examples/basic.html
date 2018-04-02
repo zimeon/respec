@@ -12,6 +12,7 @@
           name: "Your Name",
           url: "https://your-site.com",
         }],
+        enableIssueFeature: true,
         github: "https://github.com/w3c/some-API/",
       };
     </script>
@@ -30,9 +31,8 @@
     <section data-dfn-for="Foo">
       <h2><dfn>Foo</dfn> interface</h2>
       <pre class="idl">
-      interface Foo {
-        attribute Bar bar;
-        void doTheFoo();
+      interface Selection {
+          stringifier DOMString ();
       };
       </pre>
      <p>The <a>Foo</a> interface is nice. Lets you do stuff.</p>
