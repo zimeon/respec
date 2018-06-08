@@ -49,6 +49,7 @@ define(
     "core/best-practices",
     "core/figures",
     "core/webidl",
+    "core/xref",
     "core/data-cite",
     "core/biblio",
     "core/webidl-index",
