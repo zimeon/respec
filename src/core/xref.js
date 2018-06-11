@@ -41,7 +41,7 @@ export async function run(conf) {
 
   // set data-cite for further processing
   document.querySelectorAll("a[data-xref]").forEach(elem => {
-    const term = elem.getAttribute("data-cite");
+    const term = elem.getAttribute("data-xref");
     if (!results[term] || !results[term].length) {
       return;
     }
