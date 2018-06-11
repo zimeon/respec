@@ -1,48 +1,86 @@
+// PRESENT ISSUES:
+// <a>TERM</a> is not distinguishable from data-xref terms
+//   as core/link-to-dfn for local terms runs later
+//   so, local terms are presently also sent in query to xrefs api
+
+import { closestParent } from "core/utils";
+
 export const name = "core/xref";
 
 export async function run(conf) {
   if (!conf.xref) return;
   // collect keys, prepare
-  const keys = [];
-  document.querySelectorAll("a[data-xref], a:not([href])").forEach(elem => {
-    console.log(elem);
+  const keys = [...document.querySelectorAll("a[data-xref], a:not([href])")]
+    .map(elem => {
+      const key = {};
+      if ("xref" in elem.dataset) {
+        key.term = elem.dataset.xref;
+      } else {
+        key.term = elem.dataset.xref = elem.textContent;
+      }
+      const parentDataCite = closestParent(elem, "[data-cite]");
+      key.specs = parentDataCite ? parentDataCite.dataset.cite.split(" ") : [];
+      key.types = [];
+      return key;
+    })
+    .reduce((keys, key) => {
+      const { term } = key;
+      if (keys.has(term)) {
+        const temp = keys.get(term);
+        temp.types = [...new Set([...temp.types, ...key.types])];
+        temp.specs = [...new Set([...temp.specs, ...key.specs])];
+        keys.set(term, temp);
+      } else {
+        keys.set(term, key);
+      }
+      return keys;
+    }, new Map());
 
-    let term;
-    if ("xref" in elem.dataset) {
-      term = elem.dataset.xref;
-    } else {
-      term = elem.textContent;
-      elem.dataset.xref = term;
-    }
-    keys.push({ term });
-  });
-  const query = { keys };
-
+  const query = { keys: [...keys.values()] };
   const results = await simulateShepherd(query);
 
   // set data-cite for further processing
   document.querySelectorAll("a[data-xref]").forEach(elem => {
-    if (!results[elem.dataset.xref].length) return;
-    const result = disambiguate(results[elem.dataset.xref], elem);
+    const term = elem.getAttribute("data-cite");
+    if (!results[term] || !results[term].length) {
+      return;
+    }
+    const result = disambiguate(results[term], elem);
     if (!result) return;
     const { spec, uri } = result;
-    const dataCite = `${spec}/${uri}`;
+    const dataCite = `${spec}${uri.startsWith("#") ? uri : "/" + uri}`;
     elem.setAttribute("data-cite", dataCite);
   });
 }
 
 function disambiguate(data, elem) {
-  return data[0];
+  if (data.length === 1) return data[0]; // unambiguous
+  return data[0]; // todo
 }
 
 async function simulateShepherd(query) {
-  await wait(500);
+  // live experimental end point:
+  // https://wt-466c7865b463a6c4cbb820b42dde9e58-0.sandbox.auth0-extend.com/respec-xref-proto
+  await wait(10);
   const result = {};
   const data = Data();
-  for (const { term } of query.keys) {
-    result[term] = data[term];
+  for (const key of query.keys) {
+    if (key.term in data) {
+      result[key.term] = data[key.term].filter(item => filterFn(item, key));
+    }
   }
   return result;
+
+  function filterFn(item, { specs, types }) {
+    let valid = true;
+    if (Array.isArray(specs) && specs.length) {
+      valid = specs.includes(item.spec);
+    }
+    if (Array.isArray(types) && types.length) {
+      valid = valid && types.includes(item.type);
+    }
+    return valid;
+  }
 
   function wait(duration = 1000) {
     return new Promise(resolve => {
@@ -52,6 +90,7 @@ async function simulateShepherd(query) {
     });
   }
 
+  // this just exists to keep the distracting stuff at end of code
   function Data() {
     return {
       EventHandler: [
