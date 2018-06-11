@@ -2,6 +2,7 @@
 // <a>TERM</a> is not distinguishable from data-xref terms
 //   as core/link-to-dfn for local terms runs later
 //   so, local terms are presently also sent in query to xrefs api
+//   Status: Hotfix exists
 
 import { closestParent } from "core/utils";
 

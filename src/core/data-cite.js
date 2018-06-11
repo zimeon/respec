@@ -122,6 +122,7 @@ export async function run(conf) {
         : conf.informativeReferences;
       refSink.add(key);
     });
+  linkInlineCitations(document);
 }
 
 export async function linkInlineCitations(doc, conf = respecConfig) {
