@@ -67,15 +67,7 @@ const w3cDefaults = {
   doJsonLd: false,
   license: "w3c-software-doc",
   specStatus: "base",
-  logos: [
-    {
-      src: "https://www.w3.org/StyleSheets/TR/2016/logos/W3C",
-      alt: "W3C",
-      height: 48,
-      width: 72,
-      url: "https://www.w3.org/",
-    },
-  ],
+  logos: [ ],
 };
 
 function computeProps(conf) {

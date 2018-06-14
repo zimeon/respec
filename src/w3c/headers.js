@@ -160,6 +160,8 @@ const status2text = {
   "CG-FINAL": "Final Community Group Report",
   "BG-DRAFT": "Draft Business Group Report",
   "BG-FINAL": "Final Business Group Report",
+  "fcrepo-cr": "Candidate Recommendation",
+  "fcrepo-final": "Recommendation",
 };
 const status2long = {
   "FPWD-NOTE": "First Public Working Group Note",
@@ -176,6 +178,8 @@ const noTrackStatus = [
   "CG-FINAL",
   "BG-DRAFT",
   "BG-FINAL",
+  "fcrepo-cr",
+  "fcrepo-final",
 ];
 const cgbg = ["CG-DRAFT", "CG-FINAL", "BG-DRAFT", "BG-FINAL"];
 const precededByAn = ["ED", "IG-NOTE"];
@@ -227,7 +231,7 @@ function validateDateAndRecover(conf, prop, fallbackDate = new Date()) {
 }
 
 export function run(conf) {
-  conf.isUnofficial = conf.specStatus === "unofficial";
+  conf.isUnofficial = (conf.specStatus === "unofficial" || conf.specStatus === "fcrepo-cr" || conf.specStatus === "fcrepo-final");
   if (conf.isUnofficial) {
     conf.logos = [];
   }
@@ -479,7 +483,7 @@ export function run(conf) {
   if (conf.isRec && !conf.errata)
     pub("error", "Recommendations must have an errata link.");
   conf.notRec = conf.specStatus !== "REC";
-  conf.prependW3C = !conf.isUnofficial;
+  conf.prependW3C = false;
   conf.isED = conf.specStatus === "ED";
   conf.isCR = conf.specStatus === "CR";
   conf.isPR = conf.specStatus === "PR";

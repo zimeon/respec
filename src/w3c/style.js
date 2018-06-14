@@ -43,7 +43,7 @@ function createMetaViewport() {
 function createBaseStyle() {
   const link = document.createElement("link");
   link.rel = "stylesheet";
-  link.href = "https://www.w3.org/StyleSheets/TR/2016/base.css";
+  link.href = "css-js/base.css";
   link.classList.add("removeOnSave");
   return link;
 }
@@ -66,23 +66,14 @@ function selectStyleVersion(styleVersion) {
 function createResourceHints() {
   const resourceHints = [
     {
-      hint: "preconnect", // for W3C styles and scripts.
-      href: "https://www.w3.org",
-    },
-    {
       hint: "preload", // all specs need it, and we attach it on end-all.
-      href: "https://www.w3.org/scripts/TR/2016/fixup.js",
+      href: "css-js/fixup.js",
       as: "script",
     },
     {
       hint: "preload", // all specs include on base.css.
-      href: "https://www.w3.org/StyleSheets/TR/2016/base.css",
+      href: "css-js/base.css",
       as: "style",
-    },
-    {
-      hint: "preload", // all specs show the logo.
-      href: "https://www.w3.org/StyleSheets/TR/2016/logos/W3C",
-      as: "image",
     },
   ]
     .map(createResourceHint)
@@ -111,37 +102,7 @@ export function run(conf, doc, cb) {
     pub("warn", warn);
   }
 
-  let styleFile = "W3C-";
-
-  // Figure out which style file to use.
-  switch (conf.specStatus.toUpperCase()) {
-    case "CG-DRAFT":
-    case "CG-FINAL":
-    case "BG-DRAFT":
-    case "BG-FINAL":
-      styleFile = conf.specStatus.toLowerCase();
-      break;
-    case "FPWD":
-    case "LC":
-    case "WD-NOTE":
-    case "LC-NOTE":
-      styleFile += "WD";
-      break;
-    case "WG-NOTE":
-    case "FPWD-NOTE":
-      styleFile += "WG-NOTE.css";
-      break;
-    case "UNOFFICIAL":
-      styleFile += "UD";
-      break;
-    case "FINDING":
-    case "FINDING-DRAFT":
-    case "BASE":
-      styleFile = "base.css";
-      break;
-    default:
-      styleFile += conf.specStatus;
-  }
+  let styleFile = conf.specStatus + ".css";
 
   // Select between released styles and experimental style.
   const version = selectStyleVersion(conf.useExperimentalStyles || "2016");
@@ -156,7 +117,7 @@ export function run(conf, doc, cb) {
     );
   }
   const finalVersionPath = version ? version + "/" : "";
-  const finalStyleURL = `https://www.w3.org/StyleSheets/TR/${finalVersionPath}${styleFile}`;
+  const finalStyleURL = `css-js/${styleFile}`;
 
   linkCSS(doc, finalStyleURL);
   cb();
