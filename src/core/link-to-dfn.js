@@ -65,7 +65,7 @@ export function run(conf, doc, cb) {
       pub("error", `Duplicate definitions of '${title}' at: ${dfnsList}.`);
     }
   });
-  $("a:not([href]):not([data-xref]):not([data-cite]):not(.logo)").each(function() {
+  $("a:not([href]):not([data-cite]):not(.logo)").each(function() {
     const $ant = $(this);
     if ($ant.hasClass("externalDFN")) return;
     const linkTargets = $ant.linkTargets();
@@ -114,7 +114,7 @@ export function run(conf, doc, cb) {
           ".idl:not(.extAttr), dl.methods, dl.attributes, dl.constants, dl.constructors, dl.fields, dl.dictionary-members, span.idlMemberType, span.idlTypedefType, div.idlImplementsDesc"
         ).length
       ) {
-        return;
+        // return;
         const link_for = linkTargets[0].for;
         const title = linkTargets[0].title;
         this.classList.add("respec-offending-element");

@@ -585,7 +585,7 @@ export function addId(elem, pfx = "", txt = "", noLC = false) {
 
 // returns closest parent to an element that matches selector
 export function closestParent(elem, selector) {
-  while (elem && elem !== document) {
+  while (elem && elem !== document.documentElement) {
     elem = elem.parentNode;
     if (elem.matches(selector)) return elem;
   }
