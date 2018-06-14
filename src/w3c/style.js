@@ -19,7 +19,7 @@ function attachFixupScript(doc, version) {
       { once: true }
     );
   }
-  script.src = `https://www.w3.org/scripts/TR/${version}/fixup.js`;
+  script.src = `css-js/fixup.js`;
   doc.body.appendChild(script);
 }
 
