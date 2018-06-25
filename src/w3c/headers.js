@@ -232,9 +232,6 @@ function validateDateAndRecover(conf, prop, fallbackDate = new Date()) {
 
 export function run(conf) {
   conf.isUnofficial = (conf.specStatus === "unofficial" || conf.specStatus === "fcrepo-cr" || conf.specStatus === "fcrepo-final");
-  if (conf.isUnofficial) {
-    conf.logos = [];
-  }
   conf.isCCBY = conf.license === "cc-by";
   conf.isW3CSoftAndDocLicense = conf.license === "w3c-software-doc";
   if (["cc-by"].includes(conf.license)) {
